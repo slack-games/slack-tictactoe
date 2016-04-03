@@ -72,7 +72,7 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 		[]slack.Attachment{
 			slack.Attachment{
 				"The current game state", "", "",
-				fmt.Sprintf("https://gametestslack.localtunnel.me/image/%s", stateID),
+				fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", stateID),
 				"#764FA5",
 			},
 		},

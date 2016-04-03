@@ -52,7 +52,7 @@ func CurrentCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 		Attachments: []slack.Attachment{
 			slack.Attachment{
 				Title: "Last game state", Text: "", Fallback: "",
-				ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/image/%s", state.StateID),
+				ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", state.StateID),
 				Color:    "#764FA5",
 			},
 		},

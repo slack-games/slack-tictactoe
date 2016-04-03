@@ -45,7 +45,7 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 				Title:    "Last game state",
 				Text:     "",
 				Fallback: "Text fallback if image fails",
-				ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/image/%s", stateID),
+				ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", stateID),
 				Color:    "#764FA5",
 			}
 
@@ -75,7 +75,7 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 			Title:    "New game state",
 			Text:     "",
 			Fallback: "Text fallback if image fails",
-			ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/image/%s", stateID),
+			ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", stateID),
 			Color:    "#764FA5",
 		}
 	} else {
@@ -83,7 +83,7 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 			Title:    "Last game state",
 			Text:     "",
 			Fallback: "Text fallback if image fails",
-			ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/image/%s", state.StateID),
+			ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", state.StateID),
 			Color:    "#764FA5",
 		}
 	}
