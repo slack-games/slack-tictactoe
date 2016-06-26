@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/riston/slack-tictactoe"
+	"github.com/slack-games/slack-tictactoe"
 )
 
 type State struct {

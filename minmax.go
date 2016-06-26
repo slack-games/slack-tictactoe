@@ -1,7 +1,9 @@
 package tictactoe
 
 const (
+	// MaxInt maximum field value
 	MaxInt = 0xFF
+	// MinInt minimum field value
 	MinInt = -0xFF
 )
 
@@ -55,14 +57,14 @@ func AB(game TicTacToe, depth, maximizer, player uint8, a, b int) (score int, sp
 
 		if maximizer == player {
 			// Alpha
-			score, _ := AB(newGame, depth-1, maximizer, switchPlayer(player), a, b)
+			score, _ = AB(newGame, depth-1, maximizer, switchPlayer(player), a, b)
 			if score > a {
 				a = score
 				spot = move
 			}
 		} else {
 			// Beta
-			score, _ := AB(newGame, depth-1, maximizer, switchPlayer(player), a, b)
+			score, _ = AB(newGame, depth-1, maximizer, switchPlayer(player), a, b)
 			if score < b {
 				b = score
 				spot = move

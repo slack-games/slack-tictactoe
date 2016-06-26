@@ -4,34 +4,31 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/riston/slack-client"
-	"github.com/riston/slack-server/datastore"
-	"github.com/riston/slack-tictactoe"
-	tttdatastore "github.com/riston/slack-tictactoe/datastore"
+	"github.com/slack-games/slack-client"
+	"github.com/slack-games/slack-server/datastore"
+	"github.com/slack-games/slack-tictactoe"
+	tttdatastore "github.com/slack-games/slack-tictactoe/datastore"
 )
 
+// MoveCommand defines the tic tac toe moves
 func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
+	baseURL := os.Getenv("BASE_PATH")
 	state, err := tttdatastore.GetUserLastState(db, userID)
 
 	if err != nil {
 		// No state found
 		if err == sql.ErrNoRows {
-			return slack.ResponseMessage{
-				Text:        "You can not make any moves before the game has started `/game start`",
-				Attachments: []slack.Attachment{},
-			}
+			return slack.TextOnly("You can not make any moves before the game has started `/ttt start`")
 		}
 	}
 
 	// Check the game states
 	if isGameOver(state) {
 		log.Println("Game is already over")
-		return slack.ResponseMessage{
-			Text:        "Current game is over, but you can always start a new game `/game start`",
-			Attachments: []slack.Attachment{},
-		}
+		return slack.TextOnly("Current game is over, but you can always start a new game `/ttt start`")
 	}
 
 	// Convert 0-9 into x-y point
@@ -39,8 +36,10 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 
 	game := tttdatastore.CreateTicTacToeBoard(state)
 
-	if err := game.MakeTurn(x, y); err != nil {
-		log.Println("Should be able to make move", x, y)
+	log.Println("Should be able to make move", x, y)
+	err = game.MakeTurn(x, y)
+	if err != nil {
+		return slack.TextOnly(fmt.Sprintf("Could not make the move to %d - %d :scream_cat:", x, y))
 	}
 
 	freeSpot, err := game.GetRandomFreeSpot()
@@ -48,7 +47,7 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 		log.Println("No free spot where to move")
 	}
 
-	if err := game.MakeTurn(freeSpot.X, freeSpot.Y); err != nil {
+	if err = game.MakeTurn(freeSpot.X, freeSpot.Y); err != nil {
 		log.Println("Should be able to make move", freeSpot)
 	}
 
@@ -68,12 +67,13 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 	fmt.Println("Matching the test ", spot, stateID)
 
 	return slack.ResponseMessage{
-		fmt.Sprintf("You made move to [%d], opponent made next move to [%d], state %s", spot, freeSpot, newState.Mode),
-		[]slack.Attachment{
+		Text: fmt.Sprintf(":space_invader: You made move to *[%d]*, opponent made next move to *[%d]*, state *'%s'*",
+			spot, freeSpot.ToMove(), newState.Mode),
+		Attachments: []slack.Attachment{
 			slack.Attachment{
-				"The current game state", "", "",
-				fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", stateID),
-				"#764FA5",
+				Title:    "The current game state",
+				ImageURL: fmt.Sprintf("%s/game/tictactoe/image/%s", baseURL, stateID),
+				Color:    "#764FA5",
 			},
 		},
 	}

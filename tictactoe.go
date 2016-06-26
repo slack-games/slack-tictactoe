@@ -63,6 +63,10 @@ type Spot struct {
 	X, Y uint8
 }
 
+func (s *Spot) ToMove() uint8 {
+	return s.Y*3 + s.X
+}
+
 type Board struct {
 	Field [3][3]uint8
 }

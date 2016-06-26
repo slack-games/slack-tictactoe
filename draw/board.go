@@ -8,7 +8,7 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dimg"
 	kit "github.com/llgcode/draw2d/draw2dkit"
-	"github.com/riston/slack-tictactoe"
+	"github.com/slack-games/slack-tictactoe"
 )
 
 const (

@@ -3,23 +3,23 @@ package commands
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/jmoiron/sqlx"
-	"github.com/riston/slack-client"
-	"github.com/riston/slack-tictactoe/datastore"
+	"github.com/slack-games/slack-client"
+	"github.com/slack-games/slack-tictactoe/datastore"
 )
 
 // CurrentCommand show the current user game state
 func CurrentCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
+	baseURL := os.Getenv("BASE_PATH")
+
 	log.Println("Show user current game", userID)
 	state, err := datastore.GetUserLastState(db, userID)
 
 	// No state found
 	if err != nil {
-		return slack.ResponseMessage{
-			Text:        "Could not get the current game, but you could `/game start` a new one",
-			Attachments: []slack.Attachment{},
-		}
+		return slack.TextOnly("Could not get the current game, but you could `/ttt start` a new one")
 	}
 
 	// Get user information
@@ -40,19 +40,19 @@ func CurrentCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 	}
 
 	if state.Mode == "Turn" {
-		message = fmt.Sprintf("It's now *@%s's* turn, last turn was by *@%s* - %s",
+		message = fmt.Sprintf("It's now *@%s's* turn, last turn was by *@%s* - _at %s_",
 			currentTurn, lastTurn, state.Created.Format("15:04:05 02-01-06"))
 	} else {
-		message = fmt.Sprintf("Game has ended, state [%s], last turn by *@%s* played with *@%s* - %s",
-			state.Mode, currentTurn, lastTurn, state.Created.Format("15:04:05 02-01-06"))
+		message = fmt.Sprintf(":tada: Game won by *@%s*, played with *@%s* - _at %s_ :tada:",
+			currentTurn, lastTurn, state.Created.Format("15:04:05 02-01-06"))
 	}
 
 	return slack.ResponseMessage{
 		Text: message,
 		Attachments: []slack.Attachment{
 			slack.Attachment{
-				Title: "Last game state", Text: "", Fallback: "",
-				ImageURL: fmt.Sprintf("https://gametestslack.localtunnel.me/game/tictactoe/image/%s", state.StateID),
+				Title:    "Last game state",
+				ImageURL: fmt.Sprintf("%s/game/tictactoe/image/%s", baseURL, state.StateID),
 				Color:    "#764FA5",
 			},
 		},

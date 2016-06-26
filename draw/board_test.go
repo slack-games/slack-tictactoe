@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/llgcode/draw2d/draw2dimg"
-	"github.com/riston/slack-tictactoe"
+	"github.com/slack-games/slack-tictactoe"
 )
 
 func TestDrawGame(t *testing.T) {

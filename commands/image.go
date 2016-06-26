@@ -5,8 +5,8 @@ import (
 	"image"
 
 	"github.com/jmoiron/sqlx"
-	tttdatastore "github.com/riston/slack-tictactoe/datastore"
-	drawBoard "github.com/riston/slack-tictactoe/draw"
+	tttdatastore "github.com/slack-games/slack-tictactoe/datastore"
+	drawBoard "github.com/slack-games/slack-tictactoe/draw"
 )
 
 // GetGameImage returns the image by state
