@@ -25,33 +25,11 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 	if err != nil {
 		// No state found
 		if err == sql.ErrNoRows {
-			now := time.Now().Unix()
-
-			state = tttdatastore.State{
-				State:        "000010000",
-				TurnID:       userID,
-				Mode:         "Start",
-				FirstUserID:  "U000000000",
-				SecondUserID: userID,
-				ParentID:     "00000000-0000-0000-0000-000000000000",
-				Created:      time.Now(),
-			}
-
-			if (now % 2) == 0 {
-				state.FirstUserID = userID
-				state.SecondUserID = "U000000000"
-			}
-
-			log.Println("Create a new state")
-			stateID, err := tttdatastore.NewState(db, state)
-			if err != nil {
-				log.Fatalln("Could not create a new state", err)
-			}
+			stateID := createNewState(db, userID)
 
 			message = "Created a new clean game state"
 			attachment = slack.Attachment{
 				Title:    "Last game state",
-				Text:     "",
 				Fallback: "Text fallback if image fails",
 				ImageURL: fmt.Sprintf("%s/game/tictactoe/image/%s", baseURL, stateID),
 				Color:    "#764FA5",
@@ -62,23 +40,9 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 			log.Println("Error could not get the user state")
 		}
 	} else if isGameOver(state) {
-		state = tttdatastore.State{
-			State:        "000000000",
-			TurnID:       userID,
-			Mode:         "Start",
-			FirstUserID:  "U000000000",
-			SecondUserID: userID,
-			ParentID:     "00000000-0000-0000-0000-000000000000",
-			Created:      time.Now(),
-		}
+		stateID := createNewState(db, userID)
 
-		log.Println("Create a new state")
-		stateID, err := tttdatastore.NewState(db, state)
-		if err != nil {
-			log.Fatalln("Could not create a new state", err)
-		}
-
-		message = "Created a new game state, last one is over"
+		message = "Created a new game state, last one is over. To make move `/ttt move [1-9]`."
 		attachment = slack.Attachment{
 			Title:    "New game state",
 			Fallback: "Text fallback if image fails",
@@ -98,6 +62,33 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 		Text:        message,
 		Attachments: []slack.Attachment{attachment},
 	}
+}
+
+func createNewState(db *sqlx.DB, userID string) (ID string) {
+	now := time.Now().Unix()
+
+	state := tttdatastore.State{
+		State:        "000000000",
+		TurnID:       userID,
+		Mode:         "Start",
+		FirstUserID:  "U000000000",
+		SecondUserID: userID,
+		ParentID:     "00000000-0000-0000-0000-000000000000",
+		Created:      time.Now(),
+	}
+
+	if (now % 2) == 0 {
+		state.FirstUserID = userID
+		state.SecondUserID = "U000000000"
+		state.State = "000010000"
+	}
+
+	log.Println("Create a new state")
+	ID, err := tttdatastore.NewState(db, state)
+	if err != nil {
+		log.Fatalln("Could not create a new state", err)
+	}
+	return
 }
 
 func isGameOver(state tttdatastore.State) bool {

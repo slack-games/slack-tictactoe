@@ -39,11 +39,11 @@ func CurrentCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 		lastTurn = first.Name
 	}
 
-	if state.Mode == "Turn" {
+	if state.Mode == "Turn" || state.Mode == "Start" {
 		message = fmt.Sprintf("It's now *@%s's* turn, last turn was by *@%s* - _at %s_",
 			currentTurn, lastTurn, state.Created.Format("15:04:05 02-01-06"))
 	} else {
-		message = fmt.Sprintf(":tada: Game won by *@%s*, played with *@%s* - _at %s_ :tada:",
+		message = fmt.Sprintf(":tada: Game won by *@%s*, played with *@%s* - _at %s_. For a new game `/ttt start` :tada:",
 			currentTurn, lastTurn, state.Created.Format("15:04:05 02-01-06"))
 	}
 

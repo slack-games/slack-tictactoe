@@ -39,7 +39,7 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 	log.Println("Should be able to make move", x, y)
 	err = game.MakeTurn(x, y)
 	if err != nil {
-		return slack.TextOnly(fmt.Sprintf("Could not make the move to %d - %d :scream_cat:", x, y))
+		return slack.TextOnly(fmt.Sprintf("Could not make the move to %d :scream_cat:", spot))
 	}
 
 	freeSpot, err := game.GetRandomFreeSpot()
