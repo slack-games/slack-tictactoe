@@ -25,9 +25,10 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 	if err != nil {
 		// No state found
 		if err == sql.ErrNoRows {
-			stateID := createNewState(db, userID)
+			stateID, newState := createNewState(db, userID)
+			symbol := getSymbol(newState, userID)
 
-			message = "Created a new clean game state"
+			message = fmt.Sprintf("Created a new clean game state, your turn as %s", symbol)
 			attachment = slack.Attachment{
 				Title:    "Last game state",
 				Fallback: "Text fallback if image fails",
@@ -40,9 +41,11 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 			log.Println("Error could not get the user state")
 		}
 	} else if isGameOver(state) {
-		stateID := createNewState(db, userID)
+		stateID, newState := createNewState(db, userID)
+		symbol := getSymbol(newState, userID)
 
-		message = "Created a new game state, last one is over. To make move `/ttt move [1-9]`."
+		message = fmt.Sprintf("Created a new game state, your turn as %s. To make move `/ttt move [1-9]`.",
+			symbol)
 		attachment = slack.Attachment{
 			Title:    "New game state",
 			Fallback: "Text fallback if image fails",
@@ -64,10 +67,17 @@ func StartCommand(db *sqlx.DB, userID string) slack.ResponseMessage {
 	}
 }
 
-func createNewState(db *sqlx.DB, userID string) (ID string) {
+func getSymbol(state tttdatastore.State, userID string) string {
+	if state.FirstUserID == userID {
+		return ":o:"
+	}
+	return ":x:"
+}
+
+func createNewState(db *sqlx.DB, userID string) (ID string, state tttdatastore.State) {
 	now := time.Now().Unix()
 
-	state := tttdatastore.State{
+	state = tttdatastore.State{
 		State:        "000000000",
 		TurnID:       userID,
 		Mode:         "Start",
@@ -80,7 +90,7 @@ func createNewState(db *sqlx.DB, userID string) (ID string) {
 	if (now % 2) == 0 {
 		state.FirstUserID = userID
 		state.SecondUserID = "U000000000"
-		state.State = "000010000"
+		state.State = "000020000"
 	}
 
 	log.Println("Create a new state")

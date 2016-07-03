@@ -13,6 +13,11 @@ import (
 	tttdatastore "github.com/slack-games/slack-tictactoe/datastore"
 )
 
+const (
+	oSymbol = ":o:"
+	xSymbol = ":x:"
+)
+
 // MoveCommand defines the tic tac toe moves
 func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 	baseURL := os.Getenv("BASE_PATH")
@@ -66,9 +71,17 @@ func MoveCommand(db *sqlx.DB, userID string, spot uint8) slack.ResponseMessage {
 	fmt.Println("Users ", first, second)
 	fmt.Println("Matching the test ", spot, stateID)
 
+	userSymbol := xSymbol
+	opponentSymbol := oSymbol
+
+	if userID == first.UserID {
+		userSymbol = oSymbol
+		opponentSymbol = xSymbol
+	}
+
 	return slack.ResponseMessage{
-		Text: fmt.Sprintf(":space_invader: You made move to *[%d]*, opponent made next move to *[%d]*, state *'%s'*",
-			spot, freeSpot.ToMove(), newState.Mode),
+		Text: fmt.Sprintf(":space_invader: You (%s) made move to *[%d]*, opponent (%s) made next move to *[%d]*, state *'%s'*",
+			userSymbol, spot, opponentSymbol, freeSpot.ToMove(), newState.Mode),
 		Attachments: []slack.Attachment{
 			slack.Attachment{
 				Title:    "The current game state",
